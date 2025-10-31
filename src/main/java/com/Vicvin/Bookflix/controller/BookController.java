@@ -2,7 +2,8 @@ package com.Vicvin.Bookflix.controller;
 
 import com.Vicvin.Bookflix.entity.Book;
 import com.Vicvin.Bookflix.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,41 +13,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class BookController {
 
     private final BookService bookService;
 
-    @Autowired
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
-
-    // Upload a new story with image and file
+    // Create book (metadata + optional cover image + optional full book file)
     @PostMapping(consumes = {"multipart/form-data"})
-    public Book createBook(
-            @RequestParam("title") String title,
-            @RequestParam("descriptio\n") String description,
-            @RequestParam(value = "image", required = false) MultipartFile image,
+    public ResponseEntity<Book> createBook(
+            @RequestParam String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String author,
+            @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) throws IOException {
-        return bookService.saveBook(title, description, image, file);
+        Book b = bookService.createBook(title, description, author, coverImage, file);
+        return ResponseEntity.ok(b);
     }
 
-    // Get all books
     @GetMapping
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<List<Book>> getAll() {
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    // Get book by ID
     @GetMapping("/{id}")
-    public Book getBookById(@PathVariable Long id) {
-        return bookService.getBookById(id);
+    public ResponseEntity<Book> getOne(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
     }
 
-    // Delete book
     @DeleteMapping("/{id}")
-    public void deleteBook(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
     }
 }

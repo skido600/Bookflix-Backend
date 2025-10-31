@@ -1,55 +1,45 @@
-package com.Vicvin.Bookflix.service.impl;
+package com.Vicvin.Bookflix.serviceimpl;
 
 import com.Vicvin.Bookflix.entity.Book;
 import com.Vicvin.Bookflix.repository.BookRepository;
 import com.Vicvin.Bookflix.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.Vicvin.Bookflix.service.StorageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
-import java.nio.file.*;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
-
-    @Autowired
-    public BookServiceImpl(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
-
-    private final String uploadDir = "uploads/";
+    private final StorageService storageService;
 
     @Override
-    public Book saveBook(String title, String description, MultipartFile image, MultipartFile file) throws IOException {
-        // Create upload directory if not exists
-        Files.createDirectories(Paths.get(uploadDir));
+    @Transactional
+    public Book createBook(String title, String description, String author, MultipartFile coverImage, MultipartFile fullBook) throws IOException {
+        String coverUrl = null;
+        String fileUrl = null;
 
-        String imagePath = null;
-        String filePath = null;
-
-        // Save image if provided
-        if (image != null && !image.isEmpty()) {
-            imagePath = uploadDir + System.currentTimeMillis() + "_" + image.getOriginalFilename();
-            image.transferTo(new File(imagePath));
+        if (coverImage != null && !coverImage.isEmpty()) {
+            coverUrl = storageService.store(coverImage, "covers");
         }
 
-        // Save story file if provided
-        if (file != null && !file.isEmpty()) {
-            filePath = uploadDir + System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            file.transferTo(new File(filePath));
+        if (fullBook != null && !fullBook.isEmpty()) {
+            fileUrl = storageService.store(fullBook, "books");
         }
 
-        // Save book record
         Book book = Book.builder()
                 .title(title)
                 .description(description)
-                .imageUrl(imagePath)
-                .file(filePath)
+                .author(author)
+                .coverImageUrl(coverUrl)
+                .fileUrl(fileUrl)
+                .published(false)
                 .build();
 
         return bookRepository.save(book);
@@ -62,8 +52,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book getBookById(Long id) {
-        return bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+        return bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Book not found"));
     }
 
     @Override

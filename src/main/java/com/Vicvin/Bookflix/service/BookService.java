@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface BookService {
-    Book saveBook(String title, String description, MultipartFile image, MultipartFile file) throws IOException;
+    Book createBook(String title, String description, String author, MultipartFile coverImage, MultipartFile fullBook) throws IOException;
     List<Book> getAllBooks();
     Book getBookById(Long id);
     void deleteBook(Long id);
 }
+
