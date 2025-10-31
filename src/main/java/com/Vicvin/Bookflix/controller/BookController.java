@@ -25,7 +25,7 @@ public class BookController {
     @PostMapping(consumes = {"multipart/form-data"})
     public Book createBook(
             @RequestParam("title") String title,
-            @RequestParam("description") String description,
+            @RequestParam("descriptio\n") String description,
             @RequestParam(value = "image", required = false) MultipartFile image,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) throws IOException {
