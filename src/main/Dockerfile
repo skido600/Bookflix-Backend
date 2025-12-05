@@ -1,26 +1,10 @@
-# Use official Java 17 runtime
-FROM eclipse-temurin:17-jdk AS build
-
+FROM maven:3.9-openjdk-21 AS build
 WORKDIR /app
-
-# Copy project files
 COPY . .
+RUN mvn clean package -DskipTests
 
-# Build the application without tests
-RUN ./mvnw -q -DskipTests package
-
-# ==========================
-# PRODUCTION IMAGE
-# ==========================
-FROM eclipse-temurin:17-jre
-
+FROM openjdk:21-jdk-slim
 WORKDIR /app
-
-# Copy the built JAR from the build stage
-COPY --from=build /app/target/*.jar app.jar
-
-# Expose application port
+COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar demo.jar
 EXPOSE 8080
-
-# Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","demo.jar"]

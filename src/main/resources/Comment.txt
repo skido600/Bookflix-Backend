@@ -25,4 +25,9 @@ paystack.secret-key=sk_test_17118a15523d8076e1ed6e325d03ba2df62d9d29
 paystack.base-url=https://api.paystack.co
 paystack.callback-url=http://localhost:8080/api/payments/verify
 
-
+#spring_profiles_active=prod
+#PROD_DB_NAME=railway
+#PROD_DB_HOST=mysql.railway.internal
+#PROD_DB_PASSWORD=jsGfCFbncntDChGjctWtntSWCcYqBdsd
+#PROD_DB_USERNAME=root
+#PROD_DB_PORT=3306
